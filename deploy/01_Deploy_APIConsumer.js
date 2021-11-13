@@ -12,8 +12,8 @@ module.exports = async ({
   let additionalMessage = ""
   //set log level to ignore non errors
   ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR)
-
-  if (chainId == 31337) {
+  console.log("Chain:", chainId)
+  if (chainId === "1337") {
     let linkToken = await get('LinkToken')
     let MockOracle = await get('MockOracle')
     linkTokenAddress = linkToken.address
@@ -27,14 +27,12 @@ module.exports = async ({
   const fee = networkConfig[chainId]['fee']
   const networkName = networkConfig[chainId]['name']
 
-  const apiConsumer = await deploy('APIConsumer', {
+  const apiConsumer = await deploy('YTVideoNFT', {
     from: deployer,
     args: [oracle, jobId, fee, linkTokenAddress],
     log: true
   })
 
-  log("Run API Consumer contract with following command:")
-  log("npx hardhat request-data --contract " + apiConsumer.address + " --network " + networkName)
-  log("----------------------------------------------------")
+  log("YTVideoNFT deployed to " + apiConsumer.address + " in  network " + networkName)
 }
 module.exports.tags = ['all', 'api', 'main']

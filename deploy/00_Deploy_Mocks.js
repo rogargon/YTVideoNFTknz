@@ -9,20 +9,9 @@ module.exports = async ({
     const { deployer } = await getNamedAccounts()
     const chainId = await getChainId()
     // If we are on a local development network, we need to deploy mocks!
-    if (chainId == 31337) {
+    if (chainId === "1337") {
         log("Local network detected! Deploying mocks...")
         const linkToken = await deploy('LinkToken', { from: deployer, log: true })
-        await deploy('EthUsdAggregator', {
-            contract: 'MockV3Aggregator',
-            from: deployer,
-            log: true,
-            args: [DECIMALS, INITIAL_PRICE]
-        })
-        await deploy('VRFCoordinatorMock', {
-            from: deployer,
-            log: true,
-            args: [linkToken.address]
-        })
         await deploy('MockOracle', {
             from: deployer,
             log: true,

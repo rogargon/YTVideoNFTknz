@@ -21,9 +21,7 @@ require("@appliedblockchain/chainlink-plugins-fund-link")
 
 require('dotenv').config()
 
-const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL || process.env.ALCHEMY_MAINNET_RPC_URL || "https://eth-mainnet.alchemyapi.io/v2/your-api-key"
 const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL || "https://eth-rinkeby.alchemyapi.io/v2/your-api-key"
-const KOVAN_RPC_URL = process.env.KOVAN_RPC_URL || "https://eth-kovan.alchemyapi.io/v2/your-api-key"
 const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL || "https://polygon-mumbai.alchemyapi.io/v2/your-api-key"
 const POLYGON_MAINNET_RPC_URL = process.env.POLYGON_MAINNET_RPC_URL || "https://polygon-mainnet.alchemyapi.io/v2/your-api-key"
 const MNEMONIC = process.env.MNEMONIC || "your mnemonic"
@@ -39,16 +37,17 @@ module.exports = {
             // forking: {
             //   url: MAINNET_RPC_URL
             // }
+            chainId: 1337,
+            accounts: {
+                mnemonic: MNEMONIC,
+            }
         },
         localhost: {
-        },
-        kovan: {
-            url: KOVAN_RPC_URL,
-             accounts: [PRIVATE_KEY],
-            //accounts: {
-           //     mnemonic: MNEMONIC,
-           // },
-            saveDeployments: true,
+            url: 'http://localhost:8545',
+            chainId: 1337,
+            accounts: {
+                mnemonic: MNEMONIC,
+            }
         },
         rinkeby: {
             url: RINKEBY_RPC_URL,
@@ -58,28 +57,18 @@ module.exports = {
             },
             saveDeployments: true,
         },
-        ganache: {
-            url: 'http://localhost:8545',
-            accounts: {
-                mnemonic: MNEMONIC,
-            }
-        },
-        mainnet: {
-            url: MAINNET_RPC_URL,
-            // accounts: [PRIVATE_KEY],
+        mumbai: {
+            url: MUMBAI_RPC_URL,
             accounts: {
                 mnemonic: MNEMONIC,
             },
             saveDeployments: true,
         },
-        mumbai: {
-            url: MUMBAI_RPC_URL,
-            accounts: [PRIVATE_KEY],
-            saveDeployments: true,
-        },
         polygon: {
             url: POLYGON_MAINNET_RPC_URL,
-            accounts: [PRIVATE_KEY],
+            accounts: {
+                mnemonic: MNEMONIC,
+            },
             saveDeployments: true,
         },
     },
