@@ -86,6 +86,11 @@ contract YTVideoNFT is Ownable, Pausable, ERC721URIStorage, YTVideoAPIConsumer {
         tokenId = uint256(videoTokenId) * 100000 + edition[videoId] + 1;
     }
 
+    /// @dev Destroys `tokenId`.
+    function burn(uint256 tokenId) public whenNotPaused() {
+        super._burn(tokenId);
+    }
+
     /// @dev Base URI for computing {tokenURI}.
     function _baseURI() override internal view virtual returns (string memory) {
         return "ipfs://";
