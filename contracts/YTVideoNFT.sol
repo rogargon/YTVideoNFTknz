@@ -52,7 +52,7 @@ contract YTVideoNFT is Ownable, Pausable, ERC721URIStorage, YTVideoAPIConsumer {
     /// @return The identifier of the minted token
     function mint(string memory videoId, string memory metadataHash) public whenNotPaused() returns (uint256)
     {
-        (uint96 videoTokenId, uint256 tokenId) = _generateTokenId(videoId);
+        (uint96 videoTokenId, uint256 tokenId) = generateTokenId(videoId);
         bytes32 requestId = check(videoId, videoTokenId);
         requestedNFTs[requestId] = RequestedNFT(msg.sender, videoId, tokenId, metadataHash);
         return tokenId;
@@ -79,7 +79,7 @@ contract YTVideoNFT is Ownable, Pausable, ERC721URIStorage, YTVideoAPIConsumer {
     /// @param videoId The identifier of the YouTube video corresponding to the token
     /// @return videoTokenId The part of the NFT tokenId depending on the YouTube Video, independent from token editions
     /// @return tokenId The full NFT identifier, including editions of the same YouTube Video NFT
-    function _generateTokenId(string memory videoId) internal view returns(uint96 videoTokenId, uint256 tokenId) {
+    function generateTokenId(string memory videoId) public view returns(uint96 videoTokenId, uint256 tokenId) {
         bytes memory videoIdBytes = bytes(videoId);
         require(videoIdBytes.length == 11, "YouTube videoId should be 11 ASCII characters long");
         videoTokenId = _toUint96(abi.encodePacked(hex"00", videoIdBytes), 0);
