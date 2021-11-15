@@ -65,7 +65,7 @@ contract YTVideoNFT is Ownable, Pausable, ERC721URIStorage, YTVideoAPIConsumer {
         YTVideoAPIConsumer.processVerification(requestId, valid);
         if (valid) {
             RequestedNFT memory nft = requestedNFTs[requestId];
-            _mint(msg.sender, nft.tokenId);
+            _mint(nft.requester, nft.tokenId);
             _setTokenURI(nft.tokenId, nft.metadataHash);
             edition[nft.videoId]++;
             emit YTVNFTMinted(nft.requester, nft.videoId, edition[nft.videoId], nft.tokenId, tokenURI(nft.tokenId));

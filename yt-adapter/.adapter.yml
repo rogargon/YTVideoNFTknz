@@ -1,0 +1,13 @@
+name: "YouTube Video Description Checker"
+description: An adapter that checks if the description of a YT video includes the provided text
+node_identifier: yt_oracle
+platforms:
+  - Docker
+  - AWS Lambda
+  - GCP Functions
+data_sources:
+  - name: YouTube API v3
+    url: https://youtube.googleapis.com/youtube/v3
+parameters:
+  - id
+  - hash
