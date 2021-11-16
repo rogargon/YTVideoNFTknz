@@ -1,13 +1,13 @@
 const {networkConfig, getNetworkIdFromName} = require('../helper-hardhat-config')
 const {numToBytes32} = require('@chainlink/test-helpers/dist/src/helpers')
 const contractInfo = require("../src/contracts/contractInfo.json");
-const {expect} = require("chai");
 
 task(
     'mint-nft',
     'Calls the YTVideoNFT contract for the specified network to mint an NFT for the provided YouTube videoId, which the oracle assumes owned by the minter if running on a local network'
 )
     .addParam('video', 'The identifier of the YouTube video for which the NFT is to be minted')
+    .addParam('metadata', 'The IPFS content hash pointing to the NFT JSON metadata')
     .setAction(async (taskArgs) => {
         const contractName = 'YTVideoNFT'
         const networkId = await getNetworkIdFromName(network.name)
@@ -26,18 +26,22 @@ task(
             const MockOracle = await ethers.getContractFactory('MockOracle')
             const contract = contractInfo[parseInt(networkId)][networkName].contracts['MockOracle']
             oracle = new ethers.Contract(contract.address, MockOracle.interface, signer)
+            console.log('Using MockOracle at', contract.address, 'in network',  network.name)
             oracle.on('OracleRequest', (_specId, _sender, requestId, _payment,
                                         _cbAddress, _callbackFuncId, expiration, _dataVersion, _data) => {
                     console.log('OracleRequest:', requestId, _data)
                     oracle.fulfillOracleRequest(requestId, numToBytes32(1))
-                }
-            )
+            })
         } else {
             const oracleAddress = networkConfig[networkId].oracle;
             const Oracle = await ethers.getContractFactory('MockOracle')
             oracle = Oracle.attach(oracleAddress)
+            console.log('Using oracle at', oracleAddress, 'in network',  network.name)
+            oracle.on('OracleRequest', (_specId, _sender, requestId, _payment,
+                                        _cbAddress, _callbackFuncId, expiration, _dataVersion, _data) => {
+                console.log('OracleRequest:', requestId, _data)
+            })
         }
-        console.log('Using oracle at', contract.address, 'in',  network.name, 'network')
 
         ytVideoNft.on('YouTubeVideoVerification', async(requestId, videoId, isVerified) => {
             console.log('YouTubeVideoVerification:', requestId, videoId, isVerified)
@@ -53,7 +57,7 @@ task(
             }
         )
 
-        await ytVideoNft.mint(taskArgs.video, 'QmSCmcDtkkQpknosvpwj765Zy78mJyszEqfe8cWfkurUMJ')
+        await ytVideoNft.mint(taskArgs.video, taskArgs.metadata)
 
         console.log('Minting, waiting...')
         await new Promise(resolve => setTimeout(resolve, 300000))
