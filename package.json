@@ -7,10 +7,18 @@
   "private": true,
   "scripts": {
     "network": "hardhat node --export-all src/contracts/contractInfo.json",
+    "deploy": "hardhat deploy --export-all src/contracts/contractInfo.json",
     "frpc": "frpc -c frpc.ini",
     "test": "hardhat test test/YTVideoNFT.test.js --network localhost",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject",
+    "connect": "moralis-admin-cli connect-local-devchain",
+    "watch:events": "moralis-admin-cli add-contract",
+    "mint": "hardhat mint-nft --video",
+    "tokenid": "hardhat nft-tokenid --video"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -22,12 +30,6 @@
     "chai": "^4.3.4",
     "chai-bignumber": "^3.0.0",
     "chai-bn": "^0.2.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.4.1",
-    "eslint-plugin-promise": "^5.1.1",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "ethereum-waffle": "^3.4.0",
@@ -35,25 +37,56 @@
     "hardhat": "^2.6.7",
     "hardhat-deploy": "^0.7.0-beta.39",
     "hardhat-gas-reporter": "^1.0.4",
-    "prettier": "^2.4.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.13",
     "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.17"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@appliedblockchain/chainlink-contracts": "0.0.4",
     "@appliedblockchain/chainlink-plugins-fund-link": "0.0.1",
     "@chainlink/contracts": "^0.2.2",
     "@chainlink/test-helpers": "0.0.5",
     "@chainlink/token": "^1.1.0",
     "@nomiclabs/hardhat-truffle5": "^2.0.0",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@walletconnect/web3-provider": "^1.6.6",
+    "antd": "^4.16.13",
     "babel-eslint": "^10.1.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "mocha-skip-if": "^0.0.3",
-    "transform": "^1.1.2"
+    "moralis": "^0.0.118",
+    "react": "^17.0.2",
+    "react-blockies": "^1.4.1",
+    "react-dom": "^17.0.2",
+    "react-moralis": "^0.2.6",
+    "react-router": "^5.2.1",
+    "react-router-dom": "^5.3.0",
+    "react-scripts": "4.0.3",
+    "transform": "^1.1.2",
+    "web-vitals": "^1.0.1"
   },
   "mocha": {
     "timeout": 10000000
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
