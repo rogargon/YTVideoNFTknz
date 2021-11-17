@@ -1,10 +1,9 @@
 import React, {useState} from "react";
 import {Card, Image, Tooltip, Modal, Input, Button} from "antd";
-import {useNFTBalance} from "hooks/useNFTBalance";
+import {useNFTList} from "hooks/useNFTList";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
 import {getExplorer} from "helpers/networks";
-import {useMoralis} from "react-moralis";
 const contractInfo = require("../../src/contracts/contractInfo.json");
 
 const {Meta} = Card;
@@ -28,16 +27,14 @@ const styles = {
 
 function NFTBalance() {
     const contractName = "YTVideoNFT";
-    const {chainId} = useMoralisDapp();
-    const { Moralis } = useMoralis();
-    const currentUser = Moralis.User.current();
     const options = {};
+    const {chainId} = useMoralisDapp();
     if (chainId) {
         const networkName = Object.keys(contractInfo[parseInt(chainId)])[0];
-        options.token_address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
+        options.address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
     }
 
-    const {NFTBalance} = useNFTBalance(options);
+    const {NFTList} = useNFTList(options);
     const [visible, setVisibility] = useState(false);
     const [nftToDisplay, setNftToDisplay] = useState(null);
 
@@ -46,15 +43,10 @@ function NFTBalance() {
         setVisibility(true);
     };
 
-    console.log(NFTBalance);
-    if (!currentUser) {
-        return ( <p>Authenticate to see your YTVNFTs or mint them...</p> )
-    } else if (!NFTBalance.length) {
-        return ( <div><p>You don't own any YTVNFT.</p> <p>TODO: show YTVNFTs you have minted...</p></div>)
-    }
+    console.log(NFTList);
     return (
         <>
-            <div style={styles.NFTs}>{NFTBalance && NFTBalance.map((nft, index) => (
+            <div style={styles.NFTs}>{NFTList && NFTList.map((nft, index) => (
                 <Card hoverable
                       title={ <div>
                           <p>{nft.name}</p>

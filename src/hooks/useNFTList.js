@@ -1,15 +1,15 @@
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
 import {useEffect, useState} from "react";
-import {useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall} from "react-moralis";
+import {useMoralisWeb3Api, useMoralisWeb3ApiCall} from "react-moralis";
 
-export const useNFTBalance = (options) => {
-    const {account} = useMoralisWeb3Api();
-    const {chainId, walletAddress} = useMoralisDapp();
+export const useNFTList = (options) => {
+    const {token} = useMoralisWeb3Api();
+    const {chainId} = useMoralisDapp();
 
-    const [NFTBalance, setNFTBalance] = useState([]);
+    const [NFTList, setNFTList] = useState([]);
 
-    const { fetch: getNFTBalance, data, error, isLoading } = useMoralisWeb3ApiCall(account.getNFTsForContract,
-        {chain: chainId, address: walletAddress, ...options});
+    const { fetch: getNFTList, data, error, isLoading } = useMoralisWeb3ApiCall(token.getAllTokenIds,
+        {chain: chainId, ...options});
 
     useEffect(() => {
         if (data?.result) {
@@ -24,9 +24,9 @@ export const useNFTBalance = (options) => {
                     NFT.image = NFT.metadata?.image;
                 }
             }
-            setNFTBalance(NFTs);
+            setNFTList(NFTs);
         }
     }, [data]);
 
-    return {getNFTBalance, NFTBalance, error, isLoading};
+    return {getNFTList, NFTList, error, isLoading};
 };

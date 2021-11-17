@@ -1,17 +1,15 @@
 import { useEffect } from "react";
 import { useMoralis } from "react-moralis";
 import { BrowserRouter as Router, Switch, Route, NavLink, Redirect } from "react-router-dom";
+import { Menu, Layout } from "antd";
 import Account from "components/Account";
 import Chains from "components/Chains";
-import ERC20Balance from "components/ERC20Balance";
-import ERC20Transfers from "components/ERC20Transfers";
+import NFTTransfers from "components/NFTTransfers";
 import NFTBalance from "components/NFTBalance";
-import Wallet from "components/Wallet";
-import { Menu, Layout } from "antd";
-import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
+import NFTList from "./components/NFTList";
+import "antd/dist/antd.css";
 import "./style.css";
-import Contract from "components/Contract/Contract";
 const { Header } = Layout;
 
 const styles = {
@@ -66,20 +64,14 @@ const App = ({ isServerInfo }) => {
             }}
             defaultSelectedKeys={["nfts"]}
           >
-            <Menu.Item key="wallet">
-              <NavLink to="/wallet">👛 Wallet</NavLink>
-            </Menu.Item>
-            <Menu.Item key="balances">
-              <NavLink to="/erc20balance">💰 Balances</NavLink>
+            <Menu.Item key="nfts">
+              <NavLink to="/nfts">YTVNFTs</NavLink>
             </Menu.Item>
             <Menu.Item key="transfers">
-              <NavLink to="/erc20transfers">💸 Transfers</NavLink>
+              <NavLink to="/transfers">💸 YTVNFT Transfers</NavLink>
             </Menu.Item>
-            <Menu.Item key="nfts">
-              <NavLink to="/nfts">🖼 My NFTs</NavLink>
-            </Menu.Item>
-            <Menu.Item key="contract">
-              <NavLink to="/contract">📄 Contract</NavLink>
+            <Menu.Item key="wallet">
+              <NavLink to="/wallet">👛 Your Wallet</NavLink>
             </Menu.Item>
           </Menu>
           <div style={styles.headerRight}>
@@ -90,20 +82,14 @@ const App = ({ isServerInfo }) => {
         </Header>
         <div style={styles.content}>
           <Switch>
-            <Route path="/wallet">
-              <Wallet />
-            </Route>
-            <Route path="/erc20balance">
-              <ERC20Balance />
-            </Route>
-            <Route path="/erc20transfers">
-              <ERC20Transfers />
-            </Route>
             <Route path="/nfts">
-              <NFTBalance />
+              <NFTList />
             </Route>
-            <Route path="/contract">
-              <Contract />
+            <Route path="/transfers">
+              <NFTTransfers />
+            </Route>
+            <Route path="/wallet">
+              <NFTBalance />
             </Route>
             <Route path="/nonauthenticated">
               <>Please login using the "Authenticate" button</>

@@ -39,3 +39,17 @@ export const tokenValue = (value, decimals) => (decimals ? value / Math.pow(10, 
  * @returns {string}
  */
 export const tokenValueTxt = (value, decimals, symbol) => `${n4.format(tokenValue(value, decimals))} ${symbol}`;
+
+export const nftEvent = (token, row) => {
+    if (row.from_address === '0x0000000000000000000000000000000000000000') {
+        return 'Mint';
+    } else if (row.to_address === '0x0000000000000000000000000000000000000000') {
+        return 'Burn';
+    } else {
+        return 'Transfer';
+    }
+}
+
+export const dateTime = (dateTime) => {
+    return dateTime.replace('T', ' ').replace('.000Z', '');
+}
