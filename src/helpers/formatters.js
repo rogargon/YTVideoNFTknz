@@ -1,3 +1,6 @@
+import MaterialIcon from 'material-icons-react';
+import {Tooltip} from "antd";
+
 export const n6 = new Intl.NumberFormat("en-us", {
   style: "decimal",
   minimumFractionDigits: 0,
@@ -42,14 +45,13 @@ export const tokenValueTxt = (value, decimals, symbol) => `${n4.format(tokenValu
 
 export const nftEvent = (token, row) => {
     if (row.from_address === '0x0000000000000000000000000000000000000000') {
-        return 'Mint';
+        return (<Tooltip title="Mint"><MaterialIcon icon="child_friendly"/></Tooltip>);
     } else if (row.to_address === '0x0000000000000000000000000000000000000000') {
-        return 'Burn';
+        return (<Tooltip title="Burn"><MaterialIcon icon="local_fire_department"/></Tooltip>);
     } else {
-        return 'Transfer';
+        return (<Tooltip title="Transfer"><MaterialIcon icon="local_shipping"/></Tooltip>);
     }
 }
-
 export const dateTime = (dateTime) => {
     return dateTime.replace('T', ' ').replace('.000Z', '');
 }

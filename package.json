@@ -56,6 +56,7 @@
     "babel-eslint": "^10.1.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
+    "material-icons-react": "^1.0.4",
     "mocha-skip-if": "^0.0.3",
     "moralis": "^0.0.118",
     "react": "^17.0.2",

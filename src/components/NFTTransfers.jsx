@@ -71,7 +71,7 @@ function NFTTransfers() {
 
     let key = 0;
     return (
-        <div style={{width: "65vw", padding: "15px"}}>
+        <div style={{padding: "15px"}}>
             <h1 style={styles.title}>💸 Last YTVNFT Transfers</h1>
             <Skeleton loading={!NFTTransfers}>
                 <Table
