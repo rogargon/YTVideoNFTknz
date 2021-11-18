@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Card, Image, Tooltip, Modal, Input, Button} from "antd";
+import {Card, Alert, Tooltip, Modal, Input, Button} from "antd";
 import {useNFTBalance} from "hooks/useNFTBalance";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
@@ -48,9 +48,15 @@ function NFTBalance() {
 
     console.log(NFTBalance);
     if (!currentUser) {
-        return ( <p>Authenticate to see your YTVNFTs or mint them...</p> )
+        return ( <Alert message="Authenticate to see your YTVNFTs or mint them..." type="warning" /> )
     } else if (!NFTBalance.length) {
-        return ( <div><p>You don't own any YTVNFT.</p> <p>TODO: show YTVNFTs you have minted...</p></div>)
+        return (
+            <div>
+                <Alert message="You don't own any YTVNFT" type="warning" />
+                <p>&nbsp;</p>
+                <Alert message="TODO: show YTVNFTs you have minted..." type="info" />
+            </div>
+            )
     }
     return (
         <>
