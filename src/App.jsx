@@ -94,6 +94,9 @@ const App = ({ isServerInfo }) => {
             <Route path="/wallet">
               <NFTBalance />
             </Route>
+            <Route path="/mint">
+              <NFTMint />
+            </Route>
             <Route path="/nonauthenticated">
               <>Please login using the "Authenticate" button</>
             </Route>
