@@ -3,7 +3,7 @@ import {useMoralis} from "react-moralis";
 import {getEllipsisTxt, nftEvent, dateTime} from "../helpers/formatters";
 import {getExplorer} from "../helpers/networks";
 import "antd/dist/antd.css";
-import {Skeleton, Table} from "antd";
+import {Alert, Skeleton, Table} from "antd";
 import styles from "./styles";
 import {useNFTTransfers} from "../hooks/useNFTTransfers";
 import {useMoralisDapp} from "../providers/MoralisDappProvider/MoralisDappProvider";
@@ -14,9 +14,11 @@ function NFTTransfers() {
     const options = {address: "0xcb590796c76F4B3F764575163B6f85Bf3075e5D4"};
     const { Moralis } = useMoralis();
     const {chainId} = useMoralisDapp();
-    if (chainId) {
+    if (chainId && contractInfo[parseInt(chainId)]) {
         const networkName = Object.keys(contractInfo[parseInt(chainId)])[0];
-        options.token_address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
+        options.address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
+    } else if (chainId) {
+        return (<Alert message="Please, switch to one of the supported networks" type="error" />)
     }
     const {NFTTransfers} = useNFTTransfers(options);
 

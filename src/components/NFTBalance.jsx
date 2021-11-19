@@ -28,13 +28,15 @@ const styles = {
 
 function NFTBalance() {
     const contractName = "YTVideoNFT";
-    const {chainId} = useMoralisDapp();
     const { Moralis } = useMoralis();
     const currentUser = Moralis.User.current();
     const options = {};
-    if (chainId) {
+    const {chainId} = useMoralisDapp();
+    if (chainId && contractInfo[parseInt(chainId)]) {
         const networkName = Object.keys(contractInfo[parseInt(chainId)])[0];
         options.token_address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
+    } else if (chainId) {
+        return (<Alert message="Please, switch to one of the supported networks" type="error" />)
     }
 
     const {NFTBalance} = useNFTBalance(options);

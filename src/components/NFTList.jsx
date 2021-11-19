@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Card, Image, Tooltip, Modal, Input, Button} from "antd";
+import {Card, Image, Tooltip, Modal, Input, Button, Alert} from "antd";
 import {useNFTList} from "hooks/useNFTList";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
@@ -29,9 +29,11 @@ function NFTBalance() {
     const contractName = "YTVideoNFT";
     const options = {};
     const {chainId} = useMoralisDapp();
-    if (chainId) {
+    if (chainId && contractInfo[parseInt(chainId)]) {
         const networkName = Object.keys(contractInfo[parseInt(chainId)])[0];
         options.address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
+    } else if (chainId) {
+        return (<Alert message="Please, switch to one of the supported networks" type="error" />)
     }
 
     const {NFTList} = useNFTList(options);
