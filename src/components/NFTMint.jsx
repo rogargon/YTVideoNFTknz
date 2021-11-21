@@ -3,17 +3,18 @@ import React, {useMemo, useState} from "react";
 import contractInfo from "contracts/contractInfo.json";
 import Address from "components/Address/Address";
 import {useMoralis, useMoralisQuery} from "react-moralis";
-import {getEllipsisTxt} from "helpers/formatters";
 import {useEffect} from "react";
 import {useMoralisDapp} from "../providers/MoralisDappProvider/MoralisDappProvider";
 import TextArea from "antd/es/input/TextArea";
+import {NFTMetadata} from "../helpers/nft-metadata";
 
 const {Step} = Steps;
 const {Text} = Typography;
 
 export default function NFTMint() {
     const {Moralis} = useMoralis();
-    const {chainId} = useMoralisDapp();
+    const currentUser = Moralis.User.current();
+    const {chainId, walletAddress} = useMoralisDapp();
     const contractName = "YTVideoNFT";
     let networkName, contract, options;
     if (chainId && contractInfo[parseInt(chainId)]) {
@@ -27,16 +28,16 @@ export default function NFTMint() {
         return (<Alert message="Please, switch to one of the supported networks" type="error"/>)
     }
     const [videoId, setVideoId] = useState("");
+    const [videoTitle, setVideoTitle] = useState("");
     const [tokenId, setTokenId] = useState({});
     const [edited, setEdited] = useState(false);
     const [current, setCurrent] = useState(0);
+    const [metadata, setMetadata] = useState("");
 
     /**Live query */
     const {data} = useMoralisQuery("Events", (query) => query, [], {
         live: true,
     });
-
-    useEffect(() => console.log("New data: ", data), [data]);
 
     const openNotification = ({message, description}) => {
         notification.open({
@@ -51,29 +52,46 @@ export default function NFTMint() {
 
     const [formCheckVideoId] = Form.useForm();
     const [formValidateVideo] = Form.useForm();
+    const [formMinting] = Form.useForm();
 
-    const checkVideoId = () => {
-        console.log("VideoID:", formCheckVideoId.getFieldValue("videoid"))
-        setVideoId(formCheckVideoId.getFieldValue("videoid"))
+    const checkVideoId = async () => {
+        const videoId = formCheckVideoId.getFieldValue("videoId")
+        setVideoId(videoId)
+        const videoTitle = formCheckVideoId.getFieldValue("videoTitle")
+        setVideoTitle(videoTitle)
         // TODO: Check video ID exists:
         // GET https://www.googleapis.com/youtube/v3/videos?part=id&id=Tr5WcGSDqDg&key={YOUR_API_KEY}
-        Moralis.executeFunction({
+        const tokenId = await Moralis.executeFunction({
             functionName: "generateTokenId",
-            params: { videoId: formCheckVideoId.getFieldValue("videoid") },
-            ...options }).then((response) => {
-                setTokenId({ "videoTokenId": response.videoTokenId, "tokenId": response.tokenId })
-                setCurrent(current + 1);
-            })
+            params: {videoId: formCheckVideoId.getFieldValue("videoId")},
+            ...options
+        });
+        setTokenId({"videoTokenId": tokenId.videoTokenId, "videoEditionTokenId": tokenId.tokenId})
+        setCurrent(current + 1)
+        setMetadata(NFTMetadata(walletAddress, formCheckVideoId.getFieldValue("videoId"),
+            formCheckVideoId.getFieldValue("videoTitle"), tokenId.videoTokenId, tokenId.tokenId))
     };
 
+    useEffect(() => {
+        if (metadata) {
+            console.log("NFT metadata: ", metadata)
+        }
+    }, [metadata]);
+
     const copyText = () => {
-        console.log(formValidateVideo.getFieldsValue());
-        navigator.clipboard.writeText(formValidateVideo.getFieldValue("descriptionText"));
+        console.log(formValidateVideo.getFieldsValue())
+        navigator.clipboard.writeText(formValidateVideo.getFieldValue("descriptionText"))
     };
 
     const onCheckboxChange = (e) => { setEdited(e.target.checked); };
 
-    const validateVideo = () => {};
+    const validateVideo = () => {
+        setCurrent(current + 1)
+    };
+
+    if (!currentUser) {
+        return ( <Alert message="Authenticate to be able to mint NFTs" type="warning" /> )
+    }
 
     return (
         <div style={{width: 500, margin: "40px auto"}}>
@@ -88,12 +106,15 @@ export default function NFTMint() {
                         name="check-videoid"
                         layout={"horizontal"}
                     >
-                        <Form.Item name="videoid" label="YouTube Video Identifier" required
+                        <Form.Item name="videoId" label="YouTube Video Identifier" required
                                    tooltip='11 letters and numbers, including characters "-" and "_"'
                                    rules={[{
                                        pattern: new RegExp("^[a-zA-Z0-9_-]{11}$"),
                                        message: 'Should be 11 letters and numbers, including "-" and "_"',
                                    }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name="videoTitle" label="YouTube Video Title" required>
                             <Input />
                         </Form.Item>
                         <Form.Item>
@@ -134,6 +155,16 @@ export default function NFTMint() {
                         </Form.Item>
                         <Form.Item>
                             <Button type="primary" disabled={!edited} onClick={validateVideo}>Next</Button>
+                        </Form.Item>
+                    </Form>
+                )}
+                {current === 2 && (
+                    <Form form={formMinting}
+                          name="minting"
+                          layout={"horizontal"}
+                    >
+                        <Form.Item>
+                            <Text>Minting NFT for {videoId} with token id {tokenId.tokenId} with metadata:</Text>
                         </Form.Item>
                     </Form>
                 )}

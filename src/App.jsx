@@ -69,7 +69,7 @@ const App = ({ isServerInfo }) => {
               <NavLink to="/nfts">NFTs</NavLink>
             </Menu.Item>
             <Menu.Item key="transfers" icon={<InteractionTwoTone />}>
-              <NavLink to="/transfers">Transfers</NavLink>
+              <NavLink to="/transfers">Transactions</NavLink>
             </Menu.Item>
             <Menu.Item key="wallet" icon={<WalletTwoTone />}>
                 <NavLink to="/wallet">Wallet</NavLink>
