@@ -21,7 +21,6 @@ const useTokenPrice = (options) => {
           setTokenPrice(price);
         })
         .catch((e) => alert(e.message));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized]);
 
   const fetchTokenPrice = async (options) => {

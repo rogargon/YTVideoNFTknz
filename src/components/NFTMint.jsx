@@ -7,9 +7,12 @@ import {useEffect} from "react";
 import {useMoralisDapp} from "../providers/MoralisDappProvider/MoralisDappProvider";
 import TextArea from "antd/es/input/TextArea";
 import {NFTMetadata} from "../helpers/nft-metadata";
+import {NFTStorage, Blob} from 'nft.storage'
 
 const {Step} = Steps;
 const {Text} = Typography;
+
+const NFT_STORAGE_API_KEY = process.env.REACT_APP_NFT_STORAGE
 
 export default function NFTMint() {
     const {Moralis} = useMoralis();
@@ -33,15 +36,20 @@ export default function NFTMint() {
     const [edited, setEdited] = useState(false);
     const [current, setCurrent] = useState(0);
     const [metadata, setMetadata] = useState("");
+    const [ipfsHash, setIpfsHash] = useState("");
 
     /**Live query */
     const {data} = useMoralisQuery("Events", (query) => query, [], {
         live: true,
     });
 
+    useEffect(() => {
+        console.log("Event:", data)
+    }, [data])
+
     const openNotification = ({message, description}) => {
         notification.open({
-            placement: "bottomRight",
+            placement: "topRight",
             message,
             description,
             onClick: () => {
@@ -68,15 +76,7 @@ export default function NFTMint() {
         });
         setTokenId({"videoTokenId": tokenId.videoTokenId, "videoEditionTokenId": tokenId.tokenId})
         setCurrent(current + 1)
-        setMetadata(NFTMetadata(walletAddress, formCheckVideoId.getFieldValue("videoId"),
-            formCheckVideoId.getFieldValue("videoTitle"), tokenId.videoTokenId, tokenId.tokenId))
     };
-
-    useEffect(() => {
-        if (metadata) {
-            console.log("NFT metadata: ", metadata)
-        }
-    }, [metadata]);
 
     const copyText = () => {
         console.log(formValidateVideo.getFieldsValue())
@@ -85,8 +85,33 @@ export default function NFTMint() {
 
     const onCheckboxChange = (e) => { setEdited(e.target.checked); };
 
-    const validateVideo = () => {
+    const validateVideo = async () => {
         setCurrent(current + 1)
+        const metadata = NFTMetadata(walletAddress, videoId, videoTitle, tokenId.videoTokenId, tokenId.videoEditionTokenId)
+        console.log("NFT metadata:\n" + metadata)
+        const client = new NFTStorage({ token: NFT_STORAGE_API_KEY });
+        console.log("Uploading to nft.storage...")
+        const cid = await client.storeBlob(new Blob([metadata]));
+        console.log(`Upload complete! Minting token with metadata hash: ${cid}`);
+        const tx = await Moralis.executeFunction({ functionName: "mint",
+            params: { videoId: videoId, metadataHash: cid }, awaitReceipt: false, ...options});
+        tx.on("transactionHash", (hash) => {
+            openNotification({
+                message: "🔊 New Transaction",
+                description: `${hash}`,
+            });
+            console.log("🔊 New Transaction", hash);
+        })
+            .on("receipt", (receipt) => {
+                openNotification({
+                    message: "📃 New Receipt",
+                    description: `${receipt.transactionHash}`,
+                });
+                console.log("🔊 New Receipt: ", receipt);
+            })
+            .on("error", (error) => {
+                console.log(error);
+            });
     };
 
     if (!currentUser) {
