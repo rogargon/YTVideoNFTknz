@@ -13,17 +13,16 @@ export const useNFTList = (options) => {
 
     useEffect(() => {
         if (data?.result) {
-            const NFTs = data.result;
-            for (let NFT of NFTs) {
+            const NFTs = data.result.map(NFT => {
                 if (NFT?.metadata) {
                     NFT.metadata = JSON.parse(NFT.metadata);
-                    // metadata is a string type
                     if (NFT.metadata?.youtube_url && NFT.metadata?.youtube_url.indexOf('youtube.com') > 0) {
                         NFT.youtube_url = NFT.metadata.youtube_url.replace('watch?v=', 'embed/')
                     }
                     NFT.image = NFT.metadata?.image;
                 }
-            }
+                return NFT;
+            }).sort((a, b) => b.block_number - a.block_number  );
             setNFTList(NFTs);
         }
     }, [data]);
