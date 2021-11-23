@@ -1,0 +1,45 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: '14.x'
+      - name: Install & Build
+        env:
+          REACT_APP_MORALIS_APPLICATION_ID: ${{ secrets.REACT_APP_MORALIS_APPLICATION_ID }}
+          REACT_APP_MORALIS_SERVER_URL: ${{ secrets.REACT_APP_MORALIS_SERVER_URL }}
+          REACT_APP_NFT_STORAGE: ${{ secrets.REACT_APP_NFT_STORAGE }}
+        run: |
+          yarn install
+          yarn build
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        if: success() && ${{ github.event_name == 'push' }}
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker build and push
+        if: success() && ${{ github.event_name == 'push' }}
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            rogargon/ytvnftknz:${{ github.sha }}
+            rogargon/ytvnftknz:latest
