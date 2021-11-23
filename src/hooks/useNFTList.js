@@ -13,16 +13,18 @@ export const useNFTList = (options) => {
 
     useEffect(() => {
         if (data?.result) {
-            const NFTs = data.result.map(NFT => {
-                if (NFT?.metadata) {
-                    NFT.metadata = JSON.parse(NFT.metadata);
-                    if (NFT.metadata?.youtube_url && NFT.metadata?.youtube_url.indexOf('youtube.com') > 0) {
-                        NFT.youtube_url = NFT.metadata.youtube_url.replace('watch?v=', 'embed/')
+            const NFTs = data.result
+                .filter(NFT => options.searchId ? NFT.token_id.indexOf(options.searchId) >= 0 : true)
+                .map(NFT => {
+                    if (NFT?.metadata) {
+                        NFT.metadata = JSON.parse(NFT.metadata);
+                        if (NFT.metadata?.youtube_url && NFT.metadata?.youtube_url.indexOf('youtube.com') > 0) {
+                            NFT.youtube_url = NFT.metadata.youtube_url.replace('watch?v=', 'embed/')
+                        }
+                        NFT.image = NFT.metadata?.image;
                     }
-                    NFT.image = NFT.metadata?.image;
-                }
-                return NFT;
-            }).sort((a, b) => b.block_number - a.block_number  );
+                    return NFT; })
+                .sort((a, b) => b.block_number - a.block_number  );
             setNFTList(NFTs);
         }
     }, [data]);

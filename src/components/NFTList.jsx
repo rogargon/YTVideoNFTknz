@@ -4,8 +4,9 @@ import {useNFTList} from "hooks/useNFTList";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
 import {getExplorer} from "helpers/networks";
-const contractInfo = require("../../src/contracts/contractInfo.json");
+import {useParams} from "react-router";
 
+const contractInfo = require("../../src/contracts/contractInfo.json");
 const {Meta} = Card;
 
 const styles = {
@@ -25,7 +26,7 @@ const styles = {
     }
 };
 
-function NFTBalance() {
+function NFTList() {
     const contractName = "YTVideoNFT";
     const options = {};
     const {chainId} = useMoralisDapp();
@@ -36,6 +37,10 @@ function NFTBalance() {
         return (<Alert message="Please, switch to one of the supported networks" type="error" />)
     }
 
+    const {id} = useParams();
+    if (id) {
+        options.searchId = id;
+    }
     const {NFTList, error, isLoading} = useNFTList(options);
     const [visible, setVisibility] = useState(false);
     const [nftToDisplay, setNftToDisplay] = useState(null);
@@ -95,4 +100,4 @@ function NFTBalance() {
     );
 }
 
-export default NFTBalance;
+export default NFTList;

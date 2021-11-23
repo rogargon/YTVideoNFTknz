@@ -52,7 +52,7 @@ const App = ({ isServerInfo }) => {
     <Router>
       <Layout style={{ height: "100%", background: "#f0f2f500" }}>
         <Header style={styles.header}>
-            <NavLink to="/nfts"><Logo /></NavLink>
+            <NavLink to="/"><Logo /></NavLink>
           <Menu
             theme="light"
             mode="horizontal"
@@ -65,9 +65,6 @@ const App = ({ isServerInfo }) => {
             }}
             defaultSelectedKeys={["nfts"]}
           >
-            <Menu.Item key="nfts" icon={<PlaySquareTwoTone />}>
-              <NavLink to="/nfts">NFTs</NavLink>
-            </Menu.Item>
             <Menu.Item key="transfers" icon={<InteractionTwoTone />}>
               <NavLink to="/transfers">Transactions</NavLink>
             </Menu.Item>
@@ -85,7 +82,7 @@ const App = ({ isServerInfo }) => {
         </Header>
         <div style={styles.content}>
           <Switch>
-            <Route path="/nfts">
+            <Route path="/nfts/:id">
               <NFTList />
             </Route>
             <Route path="/transfers">
@@ -100,8 +97,10 @@ const App = ({ isServerInfo }) => {
             <Route path="/nonauthenticated">
               <>Please login using the "Authenticate" button</>
             </Route>
+            <Route>
+              <NFTList />
+            </Route>
           </Switch>
-          <Redirect to="/nfts" />
         </div>
       </Layout>
     </Router>
@@ -109,7 +108,7 @@ const App = ({ isServerInfo }) => {
 };
 
 export const Logo = () => (
-  <img style={{width: "250px"}} src="ytvnftknz.png"/>
+  <img style={{width: "250px"}} src="/ytvnftknz.png"/>
 );
 
 export default App;
