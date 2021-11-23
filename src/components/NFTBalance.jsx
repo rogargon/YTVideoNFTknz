@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Card, Alert, Tooltip, Modal, Input, Button} from "antd";
+import {Card, Alert, Tooltip, Modal, Input, Button, Space, Spin} from "antd";
 import {useNFTBalance} from "hooks/useNFTBalance";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
@@ -39,7 +39,7 @@ function NFTBalance() {
         return (<Alert message="Please, switch to one of the supported networks" type="error" />)
     }
 
-    const {NFTBalance} = useNFTBalance(options);
+    const {NFTBalance, error, isLoading} = useNFTBalance(options);
     const [visible, setVisibility] = useState(false);
     const [nftToDisplay, setNftToDisplay] = useState(null);
 
@@ -49,7 +49,10 @@ function NFTBalance() {
     };
 
     console.log(NFTBalance);
-    if (!currentUser) {
+
+    if (isLoading) { return ( <Space size="middle"><Spin size="large" /></Space>) }
+    else if (error) { return (<Alert message={error} type="error" />) }
+    else if (!currentUser) {
         return ( <Alert message="Authenticate to see your YTVNFTs or mint them..." type="warning" /> )
     } else if (!NFTBalance.length) {
         return (

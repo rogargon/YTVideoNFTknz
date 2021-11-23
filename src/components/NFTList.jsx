@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Card, Image, Tooltip, Modal, Input, Button, Alert} from "antd";
+import {Card, Image, Tooltip, Modal, Input, Button, Alert, Space, Spin} from "antd";
 import {useNFTList} from "hooks/useNFTList";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
@@ -36,7 +36,7 @@ function NFTBalance() {
         return (<Alert message="Please, switch to one of the supported networks" type="error" />)
     }
 
-    const {NFTList} = useNFTList(options);
+    const {NFTList, error, isLoading} = useNFTList(options);
     const [visible, setVisibility] = useState(false);
     const [nftToDisplay, setNftToDisplay] = useState(null);
 
@@ -46,6 +46,10 @@ function NFTBalance() {
     };
 
     console.log(NFTList);
+
+    if (isLoading) { return ( <Space size="middle"><Spin size="large" /></Space>) }
+    else if (error) { return (<Alert message={error} type="error" />) }
+
     return (
         <>
             <div style={styles.NFTs}>{NFTList && NFTList.map((nft, index) => (
