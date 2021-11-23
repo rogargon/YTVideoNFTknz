@@ -14,6 +14,7 @@ require('./tasks/withdraw-link')
 require('./tasks/block-number')
 require('./tasks/nft-mint')
 require('./tasks/nft-tokenid')
+require('./tasks/mockoracle')
 require('@appliedblockchain/chainlink-plugins-fund-link')
 
 require('dotenv').config()

@@ -18,7 +18,8 @@
     "connect": "moralis-admin-cli connect-local-devchain",
     "watch:events": "moralis-admin-cli add-contract",
     "mint": "hardhat mint-nft --video",
-    "tokenid": "hardhat nft-tokenid --video"
+    "tokenid": "hardhat nft-tokenid --video",
+    "mockoracle": "hardhat mockoracle --valid true --network localhost"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
