@@ -28,8 +28,6 @@ const styles = {
 
 function NFTBalance() {
     const contractName = "YTVideoNFT";
-    const { Moralis } = useMoralis();
-    const currentUser = Moralis.User.current();
     const options = {};
     const {chainId} = useMoralisDapp();
     if (chainId && contractInfo[parseInt(chainId)]) {
@@ -37,6 +35,11 @@ function NFTBalance() {
         options.token_address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
     } else if (chainId) {
         return (<Alert message="Please, switch to one of the supported networks" type="error" />)
+    }
+
+    const {isAuthenticated} = useMoralis();
+    if (!isAuthenticated) {
+        return (<Alert message="Authenticate to see your YTVNFTs or mint them..." type="warning" />)
     }
 
     const {NFTBalance, error, isLoading} = useNFTBalance(options);
@@ -52,16 +55,8 @@ function NFTBalance() {
 
     if (isLoading) { return ( <Space size="middle"><Spin size="large" /></Space>) }
     else if (error) { return (<Alert message={error} type="error" />) }
-    else if (!currentUser) {
-        return ( <Alert message="Authenticate to see your YTVNFTs or mint them..." type="warning" /> )
-    } else if (!NFTBalance.length) {
-        return (
-            <div>
-                <Alert message="You don't own any YTVNFT" type="warning" />
-                <p>&nbsp;</p>
-                <Alert message="TODO: show YTVNFTs you have minted..." type="info" />
-            </div>
-            )
+    else if (!NFTBalance.length) {
+        return (<Alert message="You don't own any YTVNFT" type="warning" />)
     }
     return (
         <>

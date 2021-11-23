@@ -15,10 +15,11 @@ const NFT_STORAGE_API_KEY = process.env.REACT_APP_NFT_STORAGE
 
 export default function NFTMint() {
     const {Moralis} = useMoralis();
-    const currentUser = Moralis.User.current();
+    const {isAuthenticated} = useMoralis();
     const {chainId, walletAddress} = useMoralisDapp();
     const contractName = "YTVideoNFT";
     let networkName, contract, options;
+
     if (chainId && contractInfo[parseInt(chainId)]) {
         networkName = Object.keys(contractInfo[parseInt(chainId)])[0];
         contract = contractInfo[parseInt(chainId)][networkName].contracts[contractName];
@@ -29,6 +30,11 @@ export default function NFTMint() {
     } else if (chainId) {
         return (<Alert message="Please, switch to one of the supported networks" type="error"/>)
     }
+
+    if (!isAuthenticated) {
+        return ( <Alert message="Authenticate to be able to mint NFTs" type="warning" /> )
+    }
+
     const [videoId, setVideoId] = useState("");
     const [videoTitle, setVideoTitle] = useState("");
     const [tokenId, setTokenId] = useState({});
@@ -36,6 +42,8 @@ export default function NFTMint() {
     const [current, setCurrent] = useState(0);
     const [alerts, setAlerts] = useState([]);
     const [minted, setMinted] = useState(false);
+    const [formCheckVideoId] = Form.useForm();
+    const [formValidateVideo] = Form.useForm();
 
     useMoralisSubscription("VerificationRequest", q => q, [], {
         onCreate: data => {
@@ -69,9 +77,6 @@ export default function NFTMint() {
     const openNotification = ({type, message, description}) => {
         setAlerts(alerts.concat({ key: alerts.length + 1, type, message, description }))
     };
-
-    const [formCheckVideoId] = Form.useForm();
-    const [formValidateVideo] = Form.useForm();
 
     const checkVideoId = async () => {
         const videoId = formCheckVideoId.getFieldValue("videoId")
@@ -142,10 +147,6 @@ export default function NFTMint() {
                 console.log(error);
             });
     };
-
-    if (!currentUser) {
-        return ( <Alert message="Authenticate to be able to mint NFTs" type="warning" /> )
-    }
 
     return (
         <div style={{width: 500, margin: "40px auto"}}>
