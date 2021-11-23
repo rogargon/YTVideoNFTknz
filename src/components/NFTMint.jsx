@@ -1,13 +1,12 @@
-import {Button, Card, Input, Typography, Form, notification, Alert, Steps, Row, Col, Checkbox} from "antd";
-import React, {useMemo, useState} from "react";
+import {Button, Input, Typography, Form, Alert, Steps, Checkbox} from "antd";
+import React, {useState} from "react";
 import contractInfo from "contracts/contractInfo.json";
-import Address from "components/Address/Address";
-import {useMoralis, useMoralisQuery} from "react-moralis";
-import {useEffect} from "react";
+import {useMoralis, useMoralisSubscription} from "react-moralis";
 import {useMoralisDapp} from "../providers/MoralisDappProvider/MoralisDappProvider";
 import TextArea from "antd/es/input/TextArea";
 import {NFTMetadata} from "../helpers/nft-metadata";
 import {NFTStorage, Blob} from 'nft.storage'
+import {LoadingOutlined, SmileOutlined} from "@ant-design/icons";
 
 const {Step} = Steps;
 const {Text} = Typography;
@@ -35,32 +34,44 @@ export default function NFTMint() {
     const [tokenId, setTokenId] = useState({});
     const [edited, setEdited] = useState(false);
     const [current, setCurrent] = useState(0);
-    const [metadata, setMetadata] = useState("");
-    const [ipfsHash, setIpfsHash] = useState("");
+    const [alerts, setAlerts] = useState([]);
+    const [minted, setMinted] = useState(false);
 
-    /**Live query */
-    const {data} = useMoralisQuery("Events", (query) => query, [], {
-        live: true,
+    useMoralisSubscription("VerificationRequest", q => q, [], {
+        onCreate: data => {
+            console.log("VerificationRequest:", data)
+            openNotification({
+                type: "info",
+                message: "🔊 Verification Request",
+                description: `Verifying ownership of YouTube video ${data.attributes.videoId}, takes about 1 minute...`,
+            });
+        },
     });
 
-    useEffect(() => {
-        console.log("Event:", data)
-    }, [data])
+    useMoralisSubscription("YouTubeVideoVerification", q => q, [], {
+        onCreate: data => {
+            console.log("YouTubeVideoVerification:", data)
+            openNotification({
+                type: data.attributes.isVerified ? "success" : "error",
+                message: "🔊 Verification Result",
+                description: data.attributes.isVerified ?
+                    (<span>Video {data.attributes.videoId} ownership verified, NFT minted at
+                        <a href={"/nfts/"+tokenId.videoEditionTokenId}>{tokenId.videoEditionTokenId}</a></span>) :
+                    (<span>Video {data.attributes.videoId} ownership couldn't be verified. Please, check that the
+                        required text has been added to the description on YouTube and try again</span>),
+            });
+            if (data.attributes.isVerified) {
+                setMinted(true);
+            }
+        },
+    });
 
-    const openNotification = ({message, description}) => {
-        notification.open({
-            placement: "topRight",
-            message,
-            description,
-            onClick: () => {
-                console.log("Notification Clicked!");
-            },
-        });
+    const openNotification = ({type, message, description}) => {
+        setAlerts(alerts.concat({ key: alerts.length + 1, type, message, description }))
     };
 
     const [formCheckVideoId] = Form.useForm();
     const [formValidateVideo] = Form.useForm();
-    const [formMinting] = Form.useForm();
 
     const checkVideoId = async () => {
         const videoId = formCheckVideoId.getFieldValue("videoId")
@@ -89,27 +100,45 @@ export default function NFTMint() {
         setCurrent(current + 1)
         const metadata = NFTMetadata(walletAddress, videoId, videoTitle, tokenId.videoTokenId, tokenId.videoEditionTokenId)
         console.log("NFT metadata:\n" + metadata)
+        openNotification({
+            type: "info",
+            message: "📃 Uploading NFT Metadata",
+            description: ""
+        });
+        //const jsonFile = new Moralis.File(tokenId.videoEditionTokenId+'.json', { base64: btoa(metadata) });
+        //const upload = await jsonFile.saveIPFS();
         const client = new NFTStorage({ token: NFT_STORAGE_API_KEY });
-        console.log("Uploading to nft.storage...")
         const cid = await client.storeBlob(new Blob([metadata]));
-        console.log(`Upload complete! Minting token with metadata hash: ${cid}`);
+        openNotification({
+            type: "info",
+            message: "📃 NFT Metadata Uploaded",
+            description: `IPFS metadata hash: ${cid}`
+        });
         const tx = await Moralis.executeFunction({ functionName: "mint",
             params: { videoId: videoId, metadataHash: cid }, awaitReceipt: false, ...options});
         tx.on("transactionHash", (hash) => {
             openNotification({
-                message: "🔊 New Transaction",
-                description: `${hash}`,
+                message: "🔊 Transaction Submitted",
+                description: (<a href={"https://rinkeby.etherscan.io/tx/"+hash}
+                                 target="_blank">{hash}</a>),
             });
-            console.log("🔊 New Transaction", hash);
+            console.log("🔊 Transaction Submitted", hash);
         })
             .on("receipt", (receipt) => {
                 openNotification({
-                    message: "📃 New Receipt",
-                    description: `${receipt.transactionHash}`,
+                    type: "info",
+                    message: "📃 Transaction Accepted",
+                    description: (<a href={"https://rinkeby.etherscan.io/tx/"+receipt.transactionHash}
+                                     target="_blank">{receipt.transactionHash}</a>),
                 });
                 console.log("🔊 New Receipt: ", receipt);
             })
             .on("error", (error) => {
+                openNotification({
+                    type: "error",
+                    message: "📃 Transaction Error",
+                    description: error.message
+                });
                 console.log(error);
             });
     };
@@ -122,8 +151,8 @@ export default function NFTMint() {
         <div style={{width: 500, margin: "40px auto"}}>
             <Steps current={current}>
                 <Step key={0} title="Input video"/>
-                <Step key={1} title="Video validation"/>
-                <Step key={2} title="NFT minting"/>
+                <Step key={1} title="Validation"/>
+                <Step key={2} title="NFT minting" icon={minted ? <SmileOutlined /> : <LoadingOutlined />}/>
             </Steps>
             <div style={{margin: "50px 10px"}}>
                 {current === 0 && (
@@ -184,109 +213,18 @@ export default function NFTMint() {
                     </Form>
                 )}
                 {current === 2 && (
-                    <Form form={formMinting}
-                          name="minting"
-                          layout={"horizontal"}
-                    >
-                        <Form.Item>
-                            <Text>Minting NFT for {videoId} with token id {tokenId.tokenId} with metadata:</Text>
-                        </Form.Item>
-                    </Form>
+                    <div>
+                        <Text style={{marginBottom: "20px"}} >Requesting YouTube video {videoId} ownership verification
+                            to mint NFT {tokenId.videoEditionTokenId}...
+                        </Text>
+                        { alerts.map(alert => {
+                            return (
+                                <Alert key={alert.key} style={{marginBottom: "10px"}} showIcon type={alert.type}
+                                       message={alert.message} description={alert.description} />)
+                        })}
+                    </div>
                 )}
             </div>
-
-            {/*            <Card
-                title={
-                    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                        Your contract: {contractName}
-                        <Address avatar="left" copyable address={contract?.address} size={8}/>
-                    </div>
-                }
-                size="large"
-                style={{width: "60%"}}
-            >
-                <Form.Provider
-                    onFormFinish={async (name, {forms}) => {
-                        const params = forms[name].getFieldsValue();
-
-                        let isView = false;
-
-                        for (let method of contract.abi) {
-                            if (method.name !== name) continue;
-                            if (method.stateMutability === "view") isView = true;
-                        }
-
-                        if (!isView) {
-                            const tx = await Moralis.executeFunction({awaitReceipt: false, ...options});
-                            tx.on("transactionHash", (hash) => {
-                                setResponses({...responses, [name]: {result: null, isLoading: true}});
-                                openNotification({
-                                    message: "🔊 New Transaction",
-                                    description: `${hash}`,
-                                });
-                                console.log("🔊 New Transaction", hash);
-                            })
-                                .on("receipt", (receipt) => {
-                                    setResponses({...responses, [name]: {result: null, isLoading: false}});
-                                    openNotification({
-                                        message: "📃 New Receipt",
-                                        description: `${receipt.transactionHash}`,
-                                    });
-                                    console.log("🔊 New Receipt: ", receipt);
-                                })
-                                .on("error", (error) => {
-                                    console.log(error);
-                                });
-                        } else {
-                            Moralis.executeFunction(options).then((response) =>
-                                setResponses({...responses, [name]: {result: response, isLoading: false}})
-                            );
-                        }
-                    }}
-                >
-                    {displayedContractFunctions &&
-                    displayedContractFunctions.map((item, key) => (
-                        <Card
-                            title={`${key + 1}. ${item?.name}`}
-                            size="small"
-                            style={{marginBottom: "20px"}}
-                        >
-                            <Form layout="vertical" name={`${item.name}`}>
-                                {item.inputs.map((input, key) => (
-                                    <Form.Item
-                                        label={`${input.name} (${input.type})`}
-                                        name={`${input.name}`}
-                                        required
-                                        style={{marginBottom: "15px"}}
-                                    >
-                                        <Input placeholder="input placeholder"/>
-                                    </Form.Item>
-                                ))}
-                                <Form.Item style={{marginBottom: "5px"}}>
-                                    <Text style={{display: "block"}}>
-                                        {responses[item.name]?.result &&
-                                        `Response: ${JSON.stringify(responses[item.name]?.result)}`}
-                                    </Text>
-                                    <Button
-                                        type="primary"
-                                        htmlType="submit"
-                                        loading={responses[item?.name]?.isLoading}
-                                    >
-                                        {item.stateMutability === "view" ? "Read🔎" : "Transact💸"}
-                                    </Button>
-                                </Form.Item>
-                            </Form>
-                        </Card>
-                    ))}
-                </Form.Provider>
-            </Card>
-            <Card title={"Contract Events"} size="large" style={{width: "40%"}}>
-                {data.map((event, key) => (
-                    <Card title={"Transfer event"} size="small" style={{marginBottom: "20px"}}>
-                        {getEllipsisTxt(event.attributes.transaction_hash, 14)}
-                    </Card>
-                ))}
-            </Card>*/}
         </div>
     );
 }
