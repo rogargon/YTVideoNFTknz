@@ -20,8 +20,8 @@ describe('createRequest', () => {
       },
       {
         name: 'non-existing video',
-        valid: undefined,
-        statusCode: 500,
+        valid: false,
+        statusCode: 200,
         testData: { id: jobID, data: { id: 'ZwVNLDIJKVB', hash: 'QmPP8X2rWc2uanbnKpxfzEAAuHPuThQRtxpoY8CYVJxDj8' } }
       }
     ]

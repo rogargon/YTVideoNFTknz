@@ -50,15 +50,10 @@ const createRequest = (input, callback) => {
       if (response.data.items && response.data.items.length > 0) {
         const description = Requester.getResult(response.data, ['items', '0', 'snippet', 'description'])
         validVideoDescription = description.indexOf(hash) >= 0
-        // It's common practice to store the desired value at the top-level
-        // result key. This allows different adapters to be compatible with
-        // one another.
-        response.result = validVideoDescription
-        callback(response.status, Requester.success(jobRunID,
-          { jobRunID: jobRunID, data: { result: validVideoDescription } }))
-      } else {
-        callback(500, Requester.errored(jobRunID, 'Video ' + id + ' not found'))
       }
+      response.result = validVideoDescription
+      callback(response.status, Requester.success(jobRunID,
+        { jobRunID: jobRunID, data: { result: validVideoDescription } }))
     })
     .catch(error => {
       console.log(error)
