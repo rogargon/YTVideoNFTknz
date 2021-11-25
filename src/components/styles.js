@@ -19,6 +19,20 @@ const styles = {
         borderCollapse: "collapse",
         maxWidth: "100%",
     },
+    NFTs: {
+        display: "flex",
+        flexWrap: "wrap",
+        WebkitBoxPack: "start",
+        justifyContent: "flex-start",
+        margin: "0 auto",
+        maxWidth: "1000px",
+        gap: "10px",
+    },
+    center: {
+        display: "block",
+        marginLeft: "auto",
+        marginRight: "auto",
+    }
 };
 
 export default styles;

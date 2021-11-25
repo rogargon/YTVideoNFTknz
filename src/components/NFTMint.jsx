@@ -1,13 +1,16 @@
-import {Button, Input, Typography, Form, Alert, Steps, Checkbox} from "antd";
+import {Button, Input, Typography, Form, Alert, Steps, Checkbox, Tooltip, Card, Modal} from "antd";
 import React, {useState} from "react";
 import contractInfo from "contracts/contractInfo.json";
 import {useMoralis, useMoralisSubscription} from "react-moralis";
 import {useMoralisDapp} from "../providers/MoralisDappProvider/MoralisDappProvider";
+import {useIPFS} from "../hooks/useIPFS";
 import TextArea from "antd/es/input/TextArea";
 import {NFTMetadata} from "../helpers/nft-metadata";
 import {NFTStorage, Blob} from 'nft.storage'
 import {LoadingOutlined, SmileOutlined} from "@ant-design/icons";
-
+import {getExplorer} from "../helpers/networks";
+import styles from "./styles";
+const {Meta} = Card;
 const {Step} = Steps;
 const {Text} = Typography;
 
@@ -40,6 +43,7 @@ export default function NFTMint() {
     const [tokenId, setTokenId] = useState({});
     const [edited, setEdited] = useState(false);
     const [current, setCurrent] = useState(0);
+    const [metadata, setMetadata] = useState("");
     const [alerts, setAlerts] = useState([]);
     const [minted, setMinted] = useState(false);
     const [formCheckVideoId] = Form.useForm();
@@ -63,14 +67,57 @@ export default function NFTMint() {
                 type: data.attributes.isVerified ? "success" : "error",
                 message: "🔊 Verification Result",
                 description: data.attributes.isVerified ?
-                    (<span>Video {data.attributes.videoId} ownership verified, NFT minted at
-                        <a href={"/nfts/"+tokenId.videoEditionTokenId}>{tokenId.videoEditionTokenId}</a></span>) :
+                    (<span>Video {data.attributes.videoId} ownership verified, NFT being minted...</span>) :
                     (<span>Video {data.attributes.videoId} ownership couldn't be verified. Please, check that the
                         required text has been added to the description on YouTube and try again</span>),
             });
-            if (data.attributes.isVerified) {
-                setMinted(true);
+        },
+    });
+
+    useMoralisSubscription("YTVNFTMinted", q => q, [], {
+        onCreate: data => {
+            console.log("YTVNFTMinted:", data)
+            const nft = { name: 'YouTube Video NFT', token_address: data.attributes.address,
+                token_id: data.attributes.tokenId, metadata: JSON.parse(metadata) }
+            if (nft.metadata?.youtube_url && nft.metadata?.youtube_url.indexOf('youtube.com') > 0) {
+                nft.youtube_url = nft.metadata.youtube_url.replace('watch?v=', 'embed/')
             }
+            nft.image = nft.metadata?.image;
+            console.log("NFT:", nft)
+            openNotification({
+                type: "success",
+                message: "🔊 NFT Minted",
+                description:
+                    (<div>
+                        <Card hoverable
+                           title={ <div>
+                               <p>{nft.name}</p>
+                               <small><a href={getExplorer(chainId)+"token/"+nft.token_address+"/?a="+nft.token_id}
+                                         target="_blank">{nft.token_id.slice(0, 10)+'...'+nft.token_id.slice(-10)}</a>
+                               </small>
+                           </div> }
+                           actions={[
+                               <Tooltip title="Trade on OpenSea">
+                                   <a target="_blank"
+                                      href={"https://testnets.opensea.io/assets/" + nft.token_address + "/" +
+                                      nft.token_id}>
+                                       <img alt="Trade on Opensea" width="20px" style={styles.center}
+                                            src="https://testnets.opensea.io/static/images/logos/opensea.svg"/></a>
+                               </Tooltip>,
+                           ]}
+                           style={{width: 300, border: "2px solid #e7eaf3"}}
+                           cover={
+                               <iframe src={nft.youtube_url} frameBorder="0" allowFullScreen title="YouTube Video"/>
+                           }
+                           >
+                           <Meta title={nft.metadata?.name} description={nft.metadata?.description}/>
+                        </Card>
+                        <Text>
+                            Please, note that it might take some minutes for the NFT
+                            to appear in your wallet or in OpenSea.</Text>
+                    </div>),
+            });
+            setMinted(true)
         },
     });
 
@@ -104,14 +151,13 @@ export default function NFTMint() {
     const validateVideo = async () => {
         setCurrent(current + 1)
         const metadata = NFTMetadata(walletAddress, videoId, videoTitle, tokenId.videoTokenId, tokenId.videoEditionTokenId)
+        setMetadata(metadata)
         console.log("NFT metadata:\n" + metadata)
         openNotification({
             type: "info",
             message: "📃 Uploading NFT Metadata",
             description: ""
         });
-        //const jsonFile = new Moralis.File(tokenId.videoEditionTokenId+'.json', { base64: btoa(metadata) });
-        //const upload = await jsonFile.saveIPFS();
         const client = new NFTStorage({ token: NFT_STORAGE_API_KEY });
         const cid = await client.storeBlob(new Blob([metadata]));
         openNotification({
@@ -197,7 +243,7 @@ export default function NFTMint() {
                         </Form.Item>
                         <Form.Item>
                             <Text>Follow this link to edit the description of the video and paste the link so it is part
-                                of the description of the video (only if it wasn't already):</Text>
+                                of the description of the video (only if not already done):</Text>
                         </Form.Item>
                         <Form.Item>
                             <Button type="default" href={"https://studio.youtube.com/video/"+videoId+"/edit"}
@@ -205,7 +251,8 @@ export default function NFTMint() {
                         </Form.Item>
                         <Form.Item>
                             <Checkbox checked={edited} onChange={onCheckboxChange}>
-                                The YouTube video description has been edited to include a link to the video NFT token identifier
+                                The YouTube video description has been already edited to include a link to the video
+                                NFT token identifier
                             </Checkbox>
                         </Form.Item>
                         <Form.Item>
