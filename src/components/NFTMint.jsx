@@ -1,20 +1,21 @@
 import {Button, Input, Typography, Form, Alert, Steps, Checkbox, Tooltip, Card, Modal} from "antd";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import contractInfo from "contracts/contractInfo.json";
 import {useMoralis, useMoralisSubscription} from "react-moralis";
 import {useMoralisDapp} from "../providers/MoralisDappProvider/MoralisDappProvider";
-import {useIPFS} from "../hooks/useIPFS";
 import TextArea from "antd/es/input/TextArea";
 import {NFTMetadata} from "../helpers/nft-metadata";
 import {NFTStorage, Blob} from 'nft.storage'
 import {LoadingOutlined, SmileOutlined} from "@ant-design/icons";
 import {getExplorer} from "../helpers/networks";
 import styles from "./styles";
+import axios from "axios";
 const {Meta} = Card;
 const {Step} = Steps;
 const {Text} = Typography;
 
 const NFT_STORAGE_API_KEY = process.env.REACT_APP_NFT_STORAGE
+const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY
 
 export default function NFTMint() {
     const {Moralis} = useMoralis();
@@ -39,6 +40,7 @@ export default function NFTMint() {
     }
 
     const [videoId, setVideoId] = useState("");
+    const [videoNotFound, setVideoNotFount] = useState(true);
     const [videoTitle, setVideoTitle] = useState("");
     const [tokenId, setTokenId] = useState({});
     const [edited, setEdited] = useState(false);
@@ -126,15 +128,9 @@ export default function NFTMint() {
     };
 
     const checkVideoId = async () => {
-        const videoId = formCheckVideoId.getFieldValue("videoId")
-        setVideoId(videoId)
-        const videoTitle = formCheckVideoId.getFieldValue("videoTitle")
-        setVideoTitle(videoTitle)
-        // TODO: Check video ID exists:
-        // GET https://www.googleapis.com/youtube/v3/videos?part=id&id=Tr5WcGSDqDg&key={YOUR_API_KEY}
         const tokenId = await Moralis.executeFunction({
             functionName: "generateTokenId",
-            params: {videoId: formCheckVideoId.getFieldValue("videoId")},
+            params: {videoId},
             ...options
         });
         setTokenId({"videoTokenId": tokenId.videoTokenId, "videoEditionTokenId": tokenId.tokenId})
@@ -194,6 +190,24 @@ export default function NFTMint() {
             });
     };
 
+    useEffect(() => {
+        const fetchData = async () => {
+            const results = await axios(
+                `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}`
+            );
+            if (results.data.items?.length >0) {
+                setVideoTitle(results.data.items[0].snippet.title)
+                setVideoNotFount(false)
+            } else {
+                setVideoNotFount(true)
+                setVideoTitle("Error, video not found")
+            }
+        }
+        if (videoId) {
+            fetchData();
+        }
+    }, [videoId])
+
     return (
         <div style={{width: 500, margin: "40px auto"}}>
             <Steps current={current}>
@@ -205,21 +219,26 @@ export default function NFTMint() {
                 {current === 0 && (
                     <Form form={formCheckVideoId}
                         name="check-videoid"
-                        layout={"horizontal"}
-                    >
+                        layout={"horizontal"}>
                         <Form.Item name="videoId" label="YouTube Video Identifier" required
                                    tooltip='11 letters and numbers, including characters "-" and "_"'
                                    rules={[{
                                        pattern: new RegExp("^[a-zA-Z0-9_-]{11}$"),
                                        message: 'Should be 11 letters and numbers, including "-" and "_"',
                                    }]}>
-                            <Input />
+                            <Input onChange={(e) => {
+                                if (e.target.value.match("^[a-zA-Z0-9_-]{11}$")) {
+                                    setVideoId(e.target.value)
+                                } else {
+                                    setVideoTitle("")
+                                }
+                            }}/>
                         </Form.Item>
                         <Form.Item name="videoTitle" label="YouTube Video Title" required>
-                            <Input />
+                            <Text>{videoTitle}</Text>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" onClick={checkVideoId}>Next</Button>
+                            <Button type="primary" disabled={videoNotFound} onClick={checkVideoId}>Next</Button>
                         </Form.Item>
                     </Form>
                 )}

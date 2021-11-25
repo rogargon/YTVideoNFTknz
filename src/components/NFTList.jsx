@@ -1,30 +1,14 @@
 import React, {useState} from "react";
-import {Card, Image, Tooltip, Modal, Input, Button, Alert, Space, Spin} from "antd";
+import {Card, Tooltip, Modal, Input, Button, Alert, Space, Spin} from "antd";
 import {useNFTList} from "hooks/useNFTList";
-import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
+import {FileSearchOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
 import {getExplorer} from "helpers/networks";
 import {useParams} from "react-router";
+import styles from "./styles";
 
 const contractInfo = require("../../src/contracts/contractInfo.json");
 const {Meta} = Card;
-
-const styles = {
-    NFTs: {
-        display: "flex",
-        flexWrap: "wrap",
-        WebkitBoxPack: "start",
-        justifyContent: "flex-start",
-        margin: "0 auto",
-        maxWidth: "1000px",
-        gap: "10px",
-    },
-    center: {
-        display: "block",
-        marginLeft: "auto",
-        marginRight: "auto",
-    }
-};
 
 function NFTList() {
     const contractName = "YTVideoNFT";
