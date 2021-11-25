@@ -11,6 +11,9 @@ import "./YTVideoAPIConsumer.sol";
 /// @author Roberto García (https://rhizomik.net/~roberto)
 contract YTVideoNFT is Ownable, Pausable, ERC721URIStorage, YTVideoAPIConsumer {
 
+    /// @notice Store owner of videoId after successfully verified
+    mapping(string => address) private verifiedOwner;
+
     /// @notice Editions, i.e. amount of NFTs minted, for each YouTube video.
     mapping(string => uint16) public edition;
 
@@ -46,15 +49,21 @@ contract YTVideoNFT is Ownable, Pausable, ERC721URIStorage, YTVideoAPIConsumer {
     /// @notice Mint a NFT for the YouTube video identified by `videoId`, after checking that its description includes
     /// the part of the token identifier common to all its editions.
     /// @dev The oracle checks through YouTube Video API if the video description contains the token identifier digits
-    /// corresponding to the `videoId`.
+    /// corresponding to the `videoId`. This is done just the first time for each `videoId`.
     /// @param videoId The identifier of a YouTube video for which the NFT will be minted
     /// @param metadataHash The IPFS hash pointing to the NFT metadata
     /// @return The identifier of the minted token
     function mint(string memory videoId, string memory metadataHash) public whenNotPaused() returns (uint256)
     {
+        require(verifiedOwner[videoId] == address(0) || verifiedOwner[videoId] == msg.sender,
+            "The video is already verified and sender is not registered as the owner");
         (uint96 videoTokenId, uint256 tokenId) = generateTokenId(videoId);
-        bytes32 requestId = check(videoId, videoTokenId);
-        requestedNFTs[requestId] = RequestedNFT(msg.sender, videoId, tokenId, metadataHash);
+        if (verifiedOwner[videoId] == msg.sender) {
+            _verifiedMint(msg.sender, videoId, tokenId, metadataHash);
+        } else {
+            bytes32 requestId = check(videoId, videoTokenId);
+            requestedNFTs[requestId] = RequestedNFT(msg.sender, videoId, tokenId, metadataHash);
+        }
         return tokenId;
     }
 
@@ -65,11 +74,22 @@ contract YTVideoNFT is Ownable, Pausable, ERC721URIStorage, YTVideoAPIConsumer {
         YTVideoAPIConsumer.processVerification(requestId, valid);
         if (valid) {
             RequestedNFT memory nft = requestedNFTs[requestId];
-            _mint(nft.requester, nft.tokenId);
-            _setTokenURI(nft.tokenId, nft.metadataHash);
-            edition[nft.videoId]++;
-            emit YTVNFTMinted(nft.requester, nft.videoId, edition[nft.videoId], nft.tokenId, tokenURI(nft.tokenId));
+            verifiedOwner[nft.videoId] = nft.requester;
+            _verifiedMint(nft.requester, nft.videoId, nft.tokenId, nft.metadataHash);
         }
+    }
+
+    /// @notice Mint the NFT after verifying ownership, or directly if `videoId` ownership has already been verified
+    /// @param requester The address triggering the minting process
+    /// @param videoId The identifier of a YouTube video for which the NFT will be minted
+    /// @param tokenId The identifier of a NFT to be minted, including the video and edition parts
+    /// @param metadataHash The IPFS hash pointing to the NFT metadata
+    function _verifiedMint(address requester, string memory videoId, uint256 tokenId, string memory metadataHash)
+    internal {
+        _mint(requester, tokenId);
+        _setTokenURI(tokenId, metadataHash);
+        edition[videoId]++;
+        emit YTVNFTMinted(requester, videoId, edition[videoId], tokenId, tokenURI(tokenId));
     }
 
     /// @notice Generate a unique tokenId based on `videoId` and the number of editions for that video.
