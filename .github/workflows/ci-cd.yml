@@ -20,6 +20,7 @@ jobs:
           REACT_APP_MORALIS_APPLICATION_ID: ${{ secrets.REACT_APP_MORALIS_APPLICATION_ID }}
           REACT_APP_MORALIS_SERVER_URL: ${{ secrets.REACT_APP_MORALIS_SERVER_URL }}
           REACT_APP_NFT_STORAGE: ${{ secrets.REACT_APP_NFT_STORAGE }}
+          REACT_APP_YOUTUBE_API_KEY: ${{ secrets.REACT_APP_YOUTUBE_API_KEY }}
         run: |
           yarn install
           yarn build

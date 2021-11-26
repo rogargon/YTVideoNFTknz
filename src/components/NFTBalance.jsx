@@ -1,10 +1,11 @@
 import React, {useState} from "react";
-import {Card, Alert, Tooltip, Modal, Input, Button, Space, Spin} from "antd";
+import {Card, Alert, Tooltip, Modal, Button, Space, Spin, Layout, Row, Col, Comment, Avatar} from "antd";
 import {useNFTBalance} from "hooks/useNFTBalance";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
-import {getExplorer, getOpensea} from "helpers/networks";
+import {getExplorer, getOpensea, getOpenseaCollection} from "helpers/networks";
 import {useMoralis} from "react-moralis";
+import {Content, Footer, Header} from "antd/es/layout/layout";
 const contractInfo = require("../../src/contracts/contractInfo.json");
 
 const {Meta} = Card;
@@ -60,6 +61,17 @@ function NFTBalance() {
     }
     return (
         <>
+            <Layout><Content>
+            <Row justify="center">
+                <Col>
+                    <Comment
+                        avatar={<Avatar src="https://joeschmoe.io/api/v1/random" alt="Minter"/>}
+                        content={
+                            <p>Your YouTube Video NFTs</p>
+                        }
+                    />
+                </Col>
+            </Row>
             <div style={styles.NFTs}>{NFTBalance && NFTBalance.map((nft, index) => (
                 <Card hoverable
                       title={ <div>
@@ -99,6 +111,7 @@ function NFTBalance() {
                     </Button>}>
                 <small><pre>{JSON.stringify(nftToDisplay?.metadata, undefined, 3)}</pre></small>
             </Modal>
+            </Content><Footer /></Layout>
         </>
     );
 }

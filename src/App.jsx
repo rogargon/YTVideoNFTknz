@@ -10,7 +10,7 @@ import NFTList from "./components/NFTList";
 import "antd/dist/antd.css";
 import "./style.css";
 import NFTMint from "./components/NFTMint";
-import {PlaySquareTwoTone, InteractionTwoTone, WalletTwoTone, VideoCameraTwoTone} from "@ant-design/icons";
+import {InteractionTwoTone, WalletTwoTone, VideoCameraTwoTone} from "@ant-design/icons";
 const { Header } = Layout;
 
 const styles = {
@@ -19,7 +19,7 @@ const styles = {
     justifyContent: "center",
     fontFamily: "Roboto, sans-serif",
     color: "#041836",
-    marginTop: "100px",
+    marginTop: "80px",
   },
   header: {
     position: "fixed",
