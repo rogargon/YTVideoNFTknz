@@ -26,8 +26,8 @@ const networkConfig = {
         name: 'mumbai',
         linkToken: '0x326C977E6efc84E512bB9C30f76E30c160eD06FB',
         keyHash: '0x6e75b569a01ef56d18cab6a8e71e6600d6ce853834d4a5748b720d06f878b3a4',
-        oracle: '',
-        jobId: '',
+        oracle: '0xd29b49B80d88f74fab38D24A67791D42d32b5430',
+        jobId: '0ea2b291f61e46e0871d70537574ea3e',
         fee: '10000000000000000', // 0.01 LINK, 1 * 10 ** 16;
         fundAmount: "100000000000000"
     },
@@ -46,7 +46,7 @@ const developmentChains = ["hardhat", "localhost"]
 
 const getNetworkIdFromName = async (networkIdName) => {
     for (const id in networkConfig) {
-        if (networkConfig[id]['name'] == networkIdName) {
+        if (networkConfig[id]['name'] === networkIdName) {
             return id
         }
     }

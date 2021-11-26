@@ -1,7 +1,12 @@
 export const networkConfigs = {
   "0x1": { currencySymbol: "ETH", blockExplorerUrl: "https://etherscan.io/" },
   "0x3": { currencySymbol: "ETH", blockExplorerUrl: "https://ropsten.etherscan.io/" },
-  "0x4": { currencySymbol: "ETH", blockExplorerUrl: "https://rinkeby.etherscan.io/" },
+  "0x4": {
+    currencySymbol: "ETH",
+    blockExplorerUrl: "https://rinkeby.etherscan.io/",
+    opensea: "https://testnets.opensea.io/assets/",
+    openseaCollection: "https://testnets.opensea.io/collection/youtubevideonft-rinkeby"
+  },
   "0x2a": { currencySymbol: "ETH", blockExplorerUrl: "https://kovan.etherscan.io/" },
   "0x5": { currencySymbol: "ETH", blockExplorerUrl: "https://goerli.etherscan.io/" },
   "0x539": {
@@ -32,7 +37,7 @@ export const networkConfigs = {
     currencyName: "BNB",
     currencySymbol: "BNB",
     rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-    blockExplorerUrl: "https://testnet.bscscan.com",
+    blockExplorerUrl: "https://testnet.bscscan.com/",
   },
   "0x89": {
     chainId: 137,
@@ -40,7 +45,7 @@ export const networkConfigs = {
     currencyName: "MATIC",
     currencySymbol: "MATIC",
     rpcUrl: "https://rpc-mainnet.maticvigil.com",
-    blockExplorerUrl: "https://explorer-mainnet.maticvigil.com",
+    blockExplorerUrl: "https://explorer-mainnet.maticvigil.com/",
   },
   "0x13881": {
     chainId: 80001,
@@ -48,10 +53,14 @@ export const networkConfigs = {
     currencyName: "MATIC",
     currencySymbol: "MATIC",
     rpcUrl: "https://rpc-mumbai.matic.today",
-    blockExplorerUrl: "https://rpc-mumbai.matic.today",
+    blockExplorerUrl: "https://mumbai.polygonscan.com/",
+    opensea: "https://testnets.opensea.io/assets/mumbai/",
+    openseaCollection: "https://testnets.opensea.io/collection/youtubevideonft-mumbai"
   },
 };
 
 export const getNativeByChain = (chain) => networkConfigs[chain]?.currencySymbol || "NATIVE";
 
 export const getExplorer = (chain) => networkConfigs[chain]?.blockExplorerUrl;
+export const getOpensea = (chain) => networkConfigs[chain]?.opensea;
+export const getOpenseaCollection = (chain) => networkConfigs[chain]?.openseaCollection;
