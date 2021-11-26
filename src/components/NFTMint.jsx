@@ -7,7 +7,7 @@ import TextArea from "antd/es/input/TextArea";
 import {NFTMetadata} from "../helpers/nft-metadata";
 import {NFTStorage, Blob} from 'nft.storage'
 import {LoadingOutlined, SmileOutlined} from "@ant-design/icons";
-import {getExplorer} from "../helpers/networks";
+import {getExplorer, getOpensea} from "../helpers/networks";
 import styles from "./styles";
 import axios from "axios";
 const {Meta} = Card;
@@ -51,19 +51,19 @@ export default function NFTMint() {
     const [formCheckVideoId] = Form.useForm();
     const [formValidateVideo] = Form.useForm();
 
-    useMoralisSubscription("VerificationRequest", q => q, [], {
-        onCreate: data => {
+    useMoralisSubscription(chainId === "0x13881" ? "VerificationRequestMumbai" : "VerificationRequest",
+            q => q, [], { onCreate: data => {
             console.log("VerificationRequest:", data)
             openNotification({
                 type: "info",
                 message: "🔊 Verification Request",
-                description: `Verifying ownership of YouTube video ${data.attributes.videoId}, takes about 1 minute...`,
+                description: `Verifying ownership of YouTube video ${data.attributes.videoId}, it takes about 1 minute...`,
             });
         },
     });
 
-    useMoralisSubscription("YouTubeVideoVerification", q => q, [], {
-        onCreate: data => {
+    useMoralisSubscription(chainId === "0x13881" ? "YouTubeVideoVerificationMumbai" : "YouTubeVideoVerification",
+            q => q, [], { onCreate: data => {
             console.log("YouTubeVideoVerification:", data)
             openNotification({
                 type: data.attributes.isVerified ? "success" : "error",
@@ -76,8 +76,8 @@ export default function NFTMint() {
         },
     });
 
-    useMoralisSubscription("YTVNFTMinted", q => q, [], {
-        onCreate: data => {
+    useMoralisSubscription(chainId === "0x13881" ? "YTVNFTMintedMumbai" : "YTVNFTMinted",
+            q => q, [], { onCreate: data => {
             console.log("YTVNFTMinted:", data)
             const nft = { name: 'YouTube Video NFT', token_address: data.attributes.address,
                 token_id: data.attributes.tokenId, metadata: JSON.parse(metadata) }
@@ -101,7 +101,7 @@ export default function NFTMint() {
                            actions={[
                                <Tooltip title="Trade on OpenSea">
                                    <a target="_blank"
-                                      href={"https://testnets.opensea.io/assets/" + nft.token_address + "/" +
+                                      href={getOpensea(chainId) + nft.token_address + "/" +
                                       nft.token_id}>
                                        <img alt="Trade on Opensea" width="20px" style={styles.center}
                                             src="https://testnets.opensea.io/static/images/logos/opensea.svg"/></a>
@@ -166,21 +166,11 @@ export default function NFTMint() {
         tx.on("transactionHash", (hash) => {
             openNotification({
                 message: "🔊 Transaction Submitted",
-                description: (<a href={"https://rinkeby.etherscan.io/tx/"+hash}
+                description: (<a href={getExplorer(chainId)+"tx/"+hash}
                                  target="_blank">{hash}</a>),
             });
             console.log("🔊 Transaction Submitted", hash);
-        })
-            .on("receipt", (receipt) => {
-                openNotification({
-                    type: "info",
-                    message: "📃 Transaction Accepted",
-                    description: (<a href={"https://rinkeby.etherscan.io/tx/"+receipt.transactionHash}
-                                     target="_blank">{receipt.transactionHash}</a>),
-                });
-                console.log("🔊 New Receipt: ", receipt);
-            })
-            .on("error", (error) => {
+        }).on("error", (error) => {
                 openNotification({
                     type: "error",
                     message: "📃 Transaction Error",

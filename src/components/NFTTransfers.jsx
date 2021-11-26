@@ -1,5 +1,4 @@
 import React from "react";
-import {useMoralis} from "react-moralis";
 import {getEllipsisTxt, nftEvent, dateTime} from "../helpers/formatters";
 import {getExplorer} from "../helpers/networks";
 import "antd/dist/antd.css";
@@ -11,8 +10,7 @@ import contractInfo from "../contracts/contractInfo.json";
 
 function NFTTransfers() {
     const contractName = "YTVideoNFT";
-    const options = {address: "0xcb590796c76F4B3F764575163B6f85Bf3075e5D4"};
-    const { Moralis } = useMoralis();
+    const options = {};
     const {chainId} = useMoralisDapp();
     if (chainId && contractInfo[parseInt(chainId)]) {
         const networkName = Object.keys(contractInfo[parseInt(chainId)])[0];

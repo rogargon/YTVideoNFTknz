@@ -3,7 +3,7 @@ import {Card, Alert, Tooltip, Modal, Input, Button, Space, Spin} from "antd";
 import {useNFTBalance} from "hooks/useNFTBalance";
 import {FileSearchOutlined, ShoppingCartOutlined} from "@ant-design/icons";
 import {useMoralisDapp} from "providers/MoralisDappProvider/MoralisDappProvider";
-import {getExplorer} from "helpers/networks";
+import {getExplorer, getOpensea} from "helpers/networks";
 import {useMoralis} from "react-moralis";
 const contractInfo = require("../../src/contracts/contractInfo.json");
 
@@ -74,7 +74,7 @@ function NFTBalance() {
                         </Tooltip>,
                         <Tooltip title="Trade on OpenSea">
                             <a target="_blank"
-                               href={"https://testnets.opensea.io/assets/" + nft.token_address + "/" +
+                               href={getOpensea(chainId) + nft.token_address + "/" +
                                nft.token_id}>
                                 <img alt="Trade on Opensea" width="20px" style={styles.center}
                                      src="https://testnets.opensea.io/static/images/logos/opensea.svg"/></a>
