@@ -1,13 +1,31 @@
 # YouTube Video NFT Tokenizer
 
-Based on https://github.com/smartcontractkit/hardhat-starter-kit and Chainlink feature:
- - [Request & Receive data](https://docs.chain.link/docs/request-and-receive-data)
+Mint trustful NFTs for your YouTube videos. Ownership is checked by an oracle that consumes YouTube's API and 
+the terms licensed to the NFT owner are defined using semantic NFT metadata.
 
- ## Requirements
+## Features
 
-- [NPM](https://www.npmjs.com/) or [YARN](https://yarnpkg.com/)
+* **YouTube Video NFTs** with multiple **editions** for the same video identifier.
+* Video **ownership verification** using a **Chainlink oracle**.
+* **Rich NFT metadata** stating the **terms licensed** to the owner using **semantic metadata and ontologies**.
+* Semantic metadata representation using JSON-LD but compatible with existing **NFT marketplaces**, so NFTs can be traded there.
+* **Frontend** that facilitates user experience, including verifying that the YouTube video exists, fetching its title, 
+or monitoring oracle verification events so the users get **feedback through the whole minting process**.
+
+## Architecture
+
+![Project Architecture](public/architecture.png)
+
+## Notes
+
+Based on Chainlink's [Hardhat Starter Kit](https://github.com/smartcontractkit/hardhat-starter-kit) and 
+[React Moralis](https://github.com/MoralisWeb3/react-moralis) for the frontend.
 
 ## Installation
+
+## Requirements
+
+- [NPM](https://www.npmjs.com/) or [YARN](https://yarnpkg.com/)
 
 ### Rinkeby Ethereum Testnet
 Set your `RINKEBY_RPC_URL` 
