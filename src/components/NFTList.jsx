@@ -47,7 +47,7 @@ function NFTList() {
     return (
         <>
             <Layout>
-                <Content>
+                <Content style={{margin: "20px"}}>
                     <Row justify="center">
                         <Col>
                             <Comment
@@ -63,8 +63,8 @@ function NFTList() {
                             />
                         </Col>
                     </Row>
-                    <Row>
-                        <Col span={24}>
+                    <Row justify="center">
+                        <Col>
                             <div style={styles.NFTs}>{NFTList && NFTList.map((nft, index) => (
                                 <Card hoverable
                                       title={<div>

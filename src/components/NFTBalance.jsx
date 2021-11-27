@@ -61,7 +61,7 @@ function NFTBalance() {
     }
     return (
         <>
-            <Layout><Content>
+            <Layout><Content style={{margin: "20px"}}>
             <Row justify="center">
                 <Col>
                     <Comment
@@ -72,6 +72,7 @@ function NFTBalance() {
                     />
                 </Col>
             </Row>
+            <Row justify="center"><Col>
             <div style={styles.NFTs}>{NFTBalance && NFTBalance.map((nft, index) => (
                 <Card hoverable
                       title={ <div>
@@ -101,6 +102,7 @@ function NFTBalance() {
                 </Card>
             ))}
             </div>
+            </Col>
             <Modal
                 title = "Metadata for Token"
                 visible={visible}
@@ -111,7 +113,7 @@ function NFTBalance() {
                     </Button>}>
                 <small><pre>{JSON.stringify(nftToDisplay?.metadata, undefined, 3)}</pre></small>
             </Modal>
-            </Content><Footer /></Layout>
+            </Row></Content><Footer /></Layout>
         </>
     );
 }
