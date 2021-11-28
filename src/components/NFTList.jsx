@@ -15,7 +15,8 @@ const contractInfo = require("../../src/contracts/contractInfo.json");
 function NFTList() {
     const contractName = "YTVideoNFT";
     const options = {};
-    const {chainId} = useMoralisDapp();
+    let {chainId} = useMoralisDapp();
+    chainId = chainId ? chainId : "0x13881";
     if (chainId && contractInfo[parseInt(chainId)]) {
         const networkName = Object.keys(contractInfo[parseInt(chainId)])[0];
         options.address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;

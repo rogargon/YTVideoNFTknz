@@ -11,13 +11,15 @@ import contractInfo from "../contracts/contractInfo.json";
 function NFTTransfers() {
     const contractName = "YTVideoNFT";
     const options = {};
-    const {chainId} = useMoralisDapp();
+    let {chainId} = useMoralisDapp();
+    chainId = chainId ? chainId : "0x13881";
     if (chainId && contractInfo[parseInt(chainId)]) {
         const networkName = Object.keys(contractInfo[parseInt(chainId)])[0];
         options.address = contractInfo[parseInt(chainId)][networkName].contracts[contractName].address;
     } else if (chainId) {
         return (<Alert message="Please, switch to one of the supported networks" type="error" />)
     }
+
     const {NFTTransfers} = useNFTTransfers(options);
 
     const columns = [

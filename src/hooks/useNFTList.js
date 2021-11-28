@@ -4,10 +4,9 @@ import {useMoralisWeb3Api, useMoralisWeb3ApiCall} from "react-moralis";
 
 export const useNFTList = (options) => {
     const {token} = useMoralisWeb3Api();
-    const {chainId} = useMoralisDapp();
-
+    let {chainId} = useMoralisDapp();
+    chainId = chainId ? chainId : "0x13881";
     const [NFTList, setNFTList] = useState([]);
-
     const { fetch: getNFTList, data, error, isLoading } = useMoralisWeb3ApiCall(token.getAllTokenIds,
         {chain: chainId, ...options});
 
