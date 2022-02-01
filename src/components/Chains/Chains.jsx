@@ -27,21 +27,21 @@ const menuItems = [
   //   value: "Ethereum",
   //   icon: <ETHLogo />,
   // },
-  {
-    key: "0x539",
-    value: "Local Chain",
-    icon: <ETHLogo />,
-  },
+  // {
+  //   key: "0x539",
+  //   value: "Local Chain",
+  //   icon: <ETHLogo />,
+  // },
   // {
   //   key: "0x3",
   //   value: "Ropsten Testnet",
   //   icon: <ETHLogo />,
   // },
-  {
-    key: "0x4",
-    value: "Rinkeby Testnet",
-    icon: <ETHLogo />,
-  },
+  // {
+  //   key: "0x4",
+  //   value: "Rinkeby Testnet",
+  //   icon: <ETHLogo />,
+  // },
   // {
   //   key: "0x2a",
   //   value: "Kovan Testnet",
